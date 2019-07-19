@@ -1,0 +1,20 @@
+=========hits is nested so you need to unnest
+=========customdimensions have session/user level and hit level. if opportunityID is sent outside of session, we should
+=========get the hit level data rather than the use/session level data
+=========this result table double the duplication of session data due to 
+===========1. unnest of hits
+===========2. unnest of dimension at hit level
+
+#StandardSQL
+SELECT   a.clientid as id,
+ visitid, visitNumber, date, 
+ visitStartTime,TIMESTAMP_SECONDS(visitStartTime) AS timestamp,
+ totals.visits,
+ totals.pageviews, totals.timeOnScreen, trafficSource.referralPath, totals.bounces, totals.timeOnSite,
+ h.page.hostname,h.page.pageTitle,h.page.pagePath as path,h.hitNumber,h.hour,h.minute,h.isEntrance,h.isExit,h.eventInfo.eventCategory,h.eventInfo.eventAction
+ ,c.index,c.value
+  FROM `projectid.viewid.ga_sessions_20190520` as a ,
+  unnest(hits) as h,
+  unnest(h.customdimensions) as c
+  where c.index=137
+limit 1000
